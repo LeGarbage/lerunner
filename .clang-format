@@ -1,0 +1,37 @@
+AccessModifierOffset: 0
+
+AlignAfterOpenBracket: Align
+
+AllowShortBlocksOnASingleLine: Always
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortCaseExpressionOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
+
+BinPackArguments: false
+BinPackParameters: OnePerLine
+BreakBeforeBraces: Attach
+BreakTemplateDeclarations: Yes
+# Cpp11BracedListStyle: false
+
+ColumnLimit: 100
+
+IndentWidth: 4
+ContinuationIndentWidth: 4
+
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: Always
+IndentAccessModifiers: false
+
+IncludeBlocks: Preserve
+
+KeepEmptyLines:
+  AtEndOfFile: false
+  AtStartOfBlock: false
+  AtStartOfFile: false
+
+PointerAlignment: Right
+QualifierAlignment: Left
+ReferenceAlignment: Pointer
+
+PackConstructorInitializers: NextLineOnly

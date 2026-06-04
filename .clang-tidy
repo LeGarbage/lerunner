@@ -1,0 +1,13 @@
+Checks: 'bugprone-*,clang-analyzer-*,cppcoreguidelines-*,modernize-*,performance-*,readability-*,-modernize-use-trailing-return-type,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-bugprone-easily-swappable-parameters'
+WarningsAsErrors: ''
+FormatStyle: file
+CheckOptions:
+  readability-identifier-naming.NamespaceCase: lower_case
+  readability-identifier-naming.ClassCase: CamelCase
+  readability-identifier-naming.StructCase: CamelCase
+  readability-identifier-naming.FunctionCase: lower_case
+  readability-identifier-naming.VariableCase: lower_case
+  readability-identifier-naming.GlobalConstantCase: UPPER_CASE
+
+  readability-identifier-length.IgnoredParameterNames: "^[nxy]$"
+  readability-identifier-length.IgnoredVariableNames: "^[_]$"
