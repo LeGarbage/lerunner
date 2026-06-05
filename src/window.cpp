@@ -11,8 +11,6 @@ MainWindow::MainWindow()
     set_child(button);
 }
 
-MainWindow::~MainWindow() = default;
-
 void MainWindow::on_button_clicked() {
     close();
 }
