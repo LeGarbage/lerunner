@@ -1,6 +1,6 @@
 #include "window.hpp"
-#include <gtkmm/eventcontrollerkey.h>
 #include <gtkmm/eventcontrollerfocus.h>
+#include <gtkmm/eventcontrollerkey.h>
 #include <iostream>
 
 MainWindow::MainWindow()
@@ -33,7 +33,8 @@ MainWindow::MainWindow()
     close_button.set_expand();
 
     auto key_controller = Gtk::EventControllerKey::create();
-    key_controller->signal_key_pressed().connect(sigc::mem_fun(*this, &MainWindow::on_key_pressed), false);
+    key_controller->signal_key_pressed().connect(sigc::mem_fun(*this, &MainWindow::on_key_pressed),
+                                                 false);
     add_controller(key_controller);
 
     auto focus_controller = Gtk::EventControllerFocus::create();
@@ -44,7 +45,10 @@ MainWindow::MainWindow()
 void MainWindow::on_button_clicked(const Glib::ustring &data) {
     std::cout << "Button \"" << data << "\" pressed\n";
 
-    if (data == "close") { close(); }
+    if (data == "close") {
+        // The focus handler already closes the window, so this prevents double closing
+        unset_focus();
+    }
 }
 
 void MainWindow::on_search_changed() {
@@ -58,7 +62,8 @@ void MainWindow::on_search_changed() {
 
 bool MainWindow::on_key_pressed(guint keyval, guint keycode, Gdk::ModifierType state) {
     if (keyval == GDK_KEY_Escape) {
-        close();
+        // The focus handler already closes the window, so this prevents double closing
+        unset_focus();
         return true;
     }
 
