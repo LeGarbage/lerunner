@@ -12,7 +12,9 @@ BinPackArguments: false
 BinPackParameters: OnePerLine
 BreakBeforeBraces: Attach
 BreakTemplateDeclarations: Yes
-# Cpp11BracedListStyle: false
+
+BreakBinaryOperations: OnePerLine
+BreakBeforeBinaryOperators: NonAssignment
 
 ColumnLimit: 100
 

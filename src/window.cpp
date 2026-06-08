@@ -1,12 +1,11 @@
 #include "window.hpp"
+#include "desktop-entries.hpp"
 #include <gtkmm/eventcontrollerfocus.h>
 #include <gtkmm/eventcontrollerkey.h>
 #include <iostream>
 
 MainWindow::MainWindow()
-    : button1("Button 1"),
-      button2("Button 2"),
-      close_button("Close") {
+    : close_button("Close") {
     box.set_margin(10);
     box.set_orientation(Gtk::Orientation::VERTICAL);
 
@@ -16,15 +15,14 @@ MainWindow::MainWindow()
     box.append(entry);
     entry.set_placeholder_text("Search");
 
-    // button1.signal_clicked().connect(
-    //     sigc::bind(sigc::mem_fun(*this, &MainWindow::on_button_clicked), "button 1"));
-    // box.append(button1);
-    // button1.set_expand();
+    for (const auto &path : DesktopEntryParser::get_desktop_entries()) {
+        auto &button = desktop_app_buttons.emplace_back(path.string());
 
-    // button2.signal_clicked().connect(
-    //     sigc::bind(sigc::mem_fun(*this, &MainWindow::on_button_clicked), "button 2"));
-    // box.append(button2);
-    // button2.set_expand();
+        button.signal_clicked().connect(
+            sigc::bind(sigc::mem_fun(*this, &MainWindow::on_button_clicked), path.string()));
+        box.append(button);
+        button.set_expand();
+    }
 
     close_button.signal_clicked().connect(
         sigc::bind(sigc::mem_fun(*this, &MainWindow::on_button_clicked), "close"));

@@ -4,6 +4,7 @@
 #include <gtkmm/button.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/window.h>
+#include <vector>
 
 class MainWindow : public Gtk::Window {
     public:
@@ -14,6 +15,7 @@ class MainWindow : public Gtk::Window {
     void on_search_changed();
     bool on_key_pressed(guint keyval, guint keycode, Gdk::ModifierType state);
     Gtk::Box box;
-    Gtk::Button button1, button2, close_button;
+    std::vector<Gtk::Button> desktop_app_buttons;
+    Gtk::Button close_button;
     Gtk::Entry entry;
 };
