@@ -19,4 +19,6 @@ pkg_check_modules(GtkLayerShell REQUIRED IMPORTED_TARGET gtk4-layer-shell-0)
 target_link_libraries(${PROJECT_NAME} PkgConfig::GtkLayerShell)
 
 find_package(XdgUtils REQUIRED)
-target_link_libraries(${PROJECT_NAME} XdgUtilsDesktopEntry)
+target_link_libraries(${PROJECT_NAME} -L${XDGUTILS_LIBDIR} XdgUtilsDesktopEntry)
+
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
