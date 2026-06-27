@@ -37,3 +37,5 @@ QualifierAlignment: Left
 ReferenceAlignment: Pointer
 
 PackConstructorInitializers: Never
+
+SeparateDefinitionBlocks: Always

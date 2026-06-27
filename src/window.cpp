@@ -1,14 +1,21 @@
 #include "window.hpp"
 #include "desktop-entries.hpp"
+#include <gdkmm/monitor.h>
+#include <gdkmm/rectangle.h>
 #include <gtkmm/eventcontrollerfocus.h>
 #include <gtkmm/eventcontrollerkey.h>
-#include <iostream>
 
 MainWindow::MainWindow()
     : close_button("Close") {
+    signal_realize().connect([this] {
+        auto monitor = get_display()->get_monitor_at_surface(get_surface());
+        Gdk::Rectangle geometry;
+        monitor->get_geometry(geometry);
+        set_default_size(static_cast<int>(geometry.get_width() * 0.8), 0);
+    });
+
     box.set_margin(10);
     box.set_orientation(Gtk::Orientation::VERTICAL);
-
     set_child(box);
 
     entry.signal_changed().connect(sigc::mem_fun(*this, &MainWindow::on_search_changed));
@@ -16,11 +23,16 @@ MainWindow::MainWindow()
     entry.set_placeholder_text("Search");
 
     for (const auto &path : DesktopEntryParser::get_desktop_entries()) {
-        auto &button = desktop_app_buttons.emplace_back(path.string());
+        DesktopEntry entry{path};
 
-        button.signal_clicked().connect(
-            sigc::bind(sigc::mem_fun(*this, &MainWindow::on_button_clicked), path.string()));
+        if (entry.get("Desktop Entry/NoDisplay") == "true") { continue; }
+
+        auto &button = desktop_app_buttons.emplace_back(entry.get("Desktop Entry/Name"));
+
+        button.signal_clicked().connect(sigc::bind(
+            sigc::mem_fun(*this, &MainWindow::on_button_clicked), entry.get("Desktop Entry/Name")));
         box.append(button);
+        button.set_visible(false);
         button.set_expand();
     }
 
@@ -50,7 +62,16 @@ void MainWindow::on_button_clicked(const Glib::ustring &data) {
 }
 
 void MainWindow::on_search_changed() {
-    auto text = entry.get_text();
+    auto text = entry.get_text().lowercase();
+
+    for (auto &button : desktop_app_buttons) {
+        if (text.length() != 0 && button.get_label().lowercase().rfind(text, 0) == 0) {
+            button.set_visible();
+        } else {
+            button.set_visible(false);
+        }
+    }
+
     if (text.length() != 0 && Glib::ustring{"close"}.rfind(text, 0) == 0) {
         close_button.set_visible();
     } else {

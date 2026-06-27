@@ -1,4 +1,5 @@
 #include "desktop-entries.hpp"
+#include <XdgUtils/DesktopEntry/DesktopEntry.h>
 #include <cstdlib>
 #include <filesystem>
 #include <format>
@@ -7,23 +8,21 @@
 #include <stdexcept>
 #include <unordered_set>
 
-std::optional<DesktopEntry> DesktopEntry::from_path(const std::filesystem::path &path) {
-    std::ifstream desktop_file{path};
-
-    if (!desktop_file.is_open()) { return std::nullopt; }
-
-    std::string test{};
-
-    std::getline(desktop_file, test);
-
-    return DesktopEntry{.test = test, .path = path};
-}
-
 std::vector<std::string> split(const std::string &string, char delim) {
     return string
            | std::views::split(delim)
            | std::views::transform([](auto &&str) { return std::string{str.begin(), str.end()}; })
            | std::ranges::to<std::vector>();
+}
+
+DesktopEntry::DesktopEntry(const std::filesystem::path &path) {
+    std::ifstream ifs{path};
+
+    desktop_entry = XdgUtils::DesktopEntry::DesktopEntry{ifs};
+}
+
+std::string DesktopEntry::get(const std::string &path, const std::string &fallback) const {
+    return desktop_entry.get(path, fallback);
 }
 
 std::vector<std::filesystem::path> DesktopEntryParser::get_desktop_entries() {
@@ -36,18 +35,18 @@ std::vector<std::filesystem::path> DesktopEntryParser::get_desktop_entries() {
     }
 
     // Set the default paths if the environment variable does not exist or is empty
-    const std::string xdg_data_dirs{(data_dirs_env != nullptr && *data_dirs_env != '\0')
-                                        ? data_dirs_env
-                                        : "/usr/local/share:/usr/share"};
+    const std::string xdg_data_dirs = (data_dirs_env != nullptr && *data_dirs_env != '\0')
+                                          ? data_dirs_env
+                                          : "/usr/local/share:/usr/share";
 
-    const std::string xdg_data_home{(data_home_env != nullptr && *data_home_env != '\0')
-                                        ? data_home_env
-                                        : std::format("{}/.local/share", home_env)};
+    const auto xdg_data_home = (data_home_env != nullptr && *data_home_env != '\0')
+                                   ? data_home_env
+                                   : std::format("{}/.local/share", home_env);
 
-    const std::string app_search_dirs = std::format("{}:{}", xdg_data_home, xdg_data_dirs);
+    const auto app_search_dirs = std::format("{}:{}", xdg_data_home, xdg_data_dirs);
 
-    std::vector<std::filesystem::path> desktop_files{};
-    std::unordered_set<std::filesystem::path> relative_paths{};
+    std::vector<std::filesystem::path> desktop_files;
+    std::unordered_set<std::filesystem::path> relative_paths;
     for (const auto &dir : split(app_search_dirs, ':')) {
         auto application_path = std::filesystem::path{dir} / "applications";
         if (!std::filesystem::is_directory(application_path)) { continue; }

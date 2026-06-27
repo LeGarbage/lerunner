@@ -5,8 +5,7 @@
 
 int main(int argc, char* argv[]) {
     auto app = Gtk::Application::create("org.gtkmm.example");
-
-    MainWindow window{};
+    MainWindow window;
 
     app->signal_activate().connect([&window, &app] {
         gtk_layer_init_for_window(window.gobj());

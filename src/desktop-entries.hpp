@@ -1,15 +1,17 @@
 #pragma once
 
+#include <XdgUtils/DesktopEntry/DesktopEntry.h>
 #include <filesystem>
-#include <optional>
 #include <string>
 #include <vector>
 
 class DesktopEntry {
     public:
-    static std::optional<DesktopEntry> from_path(const std::filesystem::path &path);
-    std::string test;
-    std::filesystem::path path;
+    DesktopEntry(const std::filesystem::path &path);
+    [[nodiscard]] std::string get(const std::string &path, const std::string &fallback = "") const;
+
+    private:
+    XdgUtils::DesktopEntry::DesktopEntry desktop_entry;
 };
 
 class DesktopEntryParser {
