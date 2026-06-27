@@ -30,12 +30,12 @@
             nativeBuildInputs = [
               cmake
               pkg-config
-              xdg-utils-cxx
             ];
 
             buildInputs = [
               gtkmm4
               gtk4-layer-shell
+              xdg-utils-cxx
             ];
           }
         ) { };
