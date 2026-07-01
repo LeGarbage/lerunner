@@ -15,14 +15,40 @@ std::vector<std::string> split(const std::string &string, char delim) {
            | std::ranges::to<std::vector>();
 }
 
+DesktopAction::DesktopAction(const XdgUtils::DesktopEntry::DesktopEntry &desktop_entry,
+                             const std::string &action)
+    : name{desktop_entry.get(std::format("Desktop Action {}/Name", action))},
+      exec{desktop_entry.get(std::format("Desktop Action {}/Exec", action))} {}
+
+std::string DesktopAction::get_name() const {
+    return name;
+}
+
+std::string DesktopAction::get_exec() const {
+    return exec;
+}
+
 DesktopEntry::DesktopEntry(const std::filesystem::path &path) {
     std::ifstream ifs{path};
 
     desktop_entry = XdgUtils::DesktopEntry::DesktopEntry{ifs};
+
+    const auto actions = split(desktop_entry.get("Desktop Entry/Actions"), ';')
+                         | std::views::filter([](auto &&string) { return string.length() != 0; })
+                         | std::ranges::to<std::vector>();
+
+    desktop_actions.reserve(actions.size());
+    for (const auto &action : actions) {
+        desktop_actions.emplace_back(desktop_entry, action);
+    }
 }
 
 std::string DesktopEntry::get(const std::string &path, const std::string &fallback) const {
     return desktop_entry.get(path, fallback);
+}
+
+std::vector<DesktopAction> DesktopEntry::get_actions() const {
+    return desktop_actions;
 }
 
 std::vector<std::filesystem::path> DesktopEntryParser::get_desktop_entries() {
