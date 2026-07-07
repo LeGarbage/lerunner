@@ -1,9 +1,11 @@
 #pragma once
 
+#include "plugins.hpp"
 #include <gtkmm/box.h>
 #include <gtkmm/button.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/window.h>
+#include <memory>
 #include <vector>
 
 class MainWindow : public Gtk::Window {
@@ -17,4 +19,5 @@ class MainWindow : public Gtk::Window {
     Gtk::Box box;
     std::vector<Gtk::Button> desktop_app_buttons;
     Gtk::Entry entry;
+    std::vector<std::unique_ptr<Plugin>> plugins;
 };
