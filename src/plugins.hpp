@@ -13,8 +13,9 @@ class Entry {
     Entry &operator=(const Entry &) = default;
     Entry &operator=(Entry &&) = delete;
 
-    [[nodiscard]] virtual std::string get_icon() const = 0;
+    [[nodiscard]] virtual std::string icon() const = 0;
     [[nodiscard]] virtual std::string display() const = 0;
+    [[nodiscard]] virtual double confidence() const = 0;
     virtual void selected() = 0;
 };
 

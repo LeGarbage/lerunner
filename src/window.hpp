@@ -13,11 +13,11 @@ class MainWindow : public Gtk::Window {
     MainWindow();
 
     private:
-    void on_button_clicked(const std::string &data);
+    void on_button_clicked(Entry *entry);
     void on_search_changed();
     bool on_key_pressed(guint keyval, guint keycode, Gdk::ModifierType state);
-    Gtk::Box box;
-    std::vector<Gtk::Button> desktop_app_buttons;
-    Gtk::Entry entry;
-    std::vector<std::unique_ptr<Plugin>> plugins;
+    Gtk::Box m_box;
+    std::vector<Gtk::Button> m_desktop_app_buttons;
+    Gtk::Entry m_entry;
+    std::vector<std::unique_ptr<Plugin>> m_plugins;
 };

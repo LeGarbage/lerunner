@@ -18,6 +18,9 @@ target_link_libraries(lerunner PkgConfig::Gtkmm)
 pkg_check_modules(GtkLayerShell REQUIRED IMPORTED_TARGET gtk4-layer-shell-0)
 target_link_libraries(lerunner PkgConfig::GtkLayerShell)
 
+find_package(rapidfuzz REQUIRED)
+target_link_libraries(lerunner rapidfuzz::rapidfuzz)
+
 find_package(XdgUtils REQUIRED)
 target_link_libraries(lerunner -L${XDGUTILS_LIBDIR} XdgUtilsDesktopEntry)
 

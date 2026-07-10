@@ -8,6 +8,7 @@ CheckOptions:
   readability-identifier-naming.FunctionCase: lower_case
   readability-identifier-naming.VariableCase: lower_case
   readability-identifier-naming.GlobalConstantCase: UPPER_CASE
+  readability-identifier-naming.PrivateMemberPrefix: m_
 
-  readability-identifier-length.IgnoredParameterNames: "^[nxy]$"
+  readability-identifier-length.IgnoredParameterNames: "^[abnxy]$"
   readability-identifier-length.IgnoredVariableNames: "^[_]$"

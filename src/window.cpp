@@ -4,21 +4,21 @@
 #include <gdkmm/rectangle.h>
 #include <gtkmm/eventcontrollerfocus.h>
 #include <gtkmm/eventcontrollerkey.h>
-#include <iostream>
 #include <print>
+#include <ranges>
 
 MainWindow::MainWindow() {
     set_default_size(640, 0);
 
-    box.set_orientation(Gtk::Orientation::VERTICAL);
-    set_child(box);
+    m_box.set_orientation(Gtk::Orientation::VERTICAL);
+    set_child(m_box);
 
-    entry.signal_changed().connect(sigc::mem_fun(*this, &MainWindow::on_search_changed));
-    box.append(entry);
-    entry.set_placeholder_text("Search");
+    m_entry.signal_changed().connect(sigc::mem_fun(*this, &MainWindow::on_search_changed));
+    m_box.append(m_entry);
+    m_entry.set_placeholder_text("Search");
 
     // TODO: Add automatic plugin loading
-    plugins.push_back(std::make_unique<DesktopEntries>());
+    m_plugins.push_back(std::make_unique<DesktopEntries>());
 
     auto key_controller = Gtk::EventControllerKey::create();
     key_controller->signal_key_pressed().connect(sigc::mem_fun(*this, &MainWindow::on_key_pressed),
@@ -30,35 +30,38 @@ MainWindow::MainWindow() {
     add_controller(focus_controller);
 }
 
-void MainWindow::on_button_clicked(const std::string &data) {
-    std::cout << "Button \"" << data << "\" pressed\n";
+void MainWindow::on_button_clicked(Entry *entry) {
+    entry->selected();
     unset_focus();
 }
 
 void MainWindow::on_search_changed() {
-    auto text = entry.get_text();
+    auto text = m_entry.get_text();
 
-    for (auto &button : desktop_app_buttons) {
-        box.remove(button);
+    for (auto &button : m_desktop_app_buttons) {
+        m_box.remove(button);
     }
 
-    desktop_app_buttons.clear();
+    m_desktop_app_buttons.clear();
 
-    for (auto *const entry : plugins[0]->get_entries(text)) {
-        // if (entry.get("Desktop Entry/NoDisplay") == "true") { continue; }
+    auto entries = m_plugins[0]->get_entries(text) | std::views::filter([](const auto *entry) { return entry->confidence() > 75; }) | std::ranges::to<std::vector>();
 
-        auto &button = desktop_app_buttons.emplace_back(entry->display());
+    std::ranges::sort(
+        entries, [](const auto *a, const auto *b) { return a->confidence() != b->confidence() ? a->confidence() > b->confidence() : a->display() < b->display(); });
 
-        button.signal_clicked().connect([this, entry] {
-            entry->selected();
-            unset_focus();
-        });
+    std::println();
 
-        box.append(button);
+    for (auto *const entry : entries | std::views::take(10)) {
+        std::println("{}", entry->confidence());
+
+        auto &button = m_desktop_app_buttons.emplace_back(entry->display());
+
+        button.signal_clicked().connect(
+            sigc::bind(sigc::mem_fun(*this, &MainWindow::on_button_clicked), entry));
+
+        m_box.append(button);
         button.set_expand();
     }
-
-    std::println("{}", box.get_children().size());
 }
 
 bool MainWindow::on_key_pressed(guint keyval, guint keycode, Gdk::ModifierType state) {
