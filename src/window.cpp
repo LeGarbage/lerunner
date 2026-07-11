@@ -44,10 +44,14 @@ void MainWindow::on_search_changed() {
 
     m_desktop_app_buttons.clear();
 
-    auto entries = m_plugins[0]->get_entries(text) | std::views::filter([](const auto *entry) { return entry->confidence() > 75; }) | std::ranges::to<std::vector>();
+    auto entries = m_plugins[0]->get_entries(text)
+                   | std::views::filter([](const auto *entry) { return entry->confidence() > 75; })
+                   | std::ranges::to<std::vector>();
 
-    std::ranges::sort(
-        entries, [](const auto *a, const auto *b) { return a->confidence() != b->confidence() ? a->confidence() > b->confidence() : a->display() < b->display(); });
+    std::ranges::sort(entries, [](const auto *a, const auto *b) {
+        return a->confidence() != b->confidence() ? a->confidence() > b->confidence()
+                                                  : a->display() < b->display();
+    });
 
     std::println();
 

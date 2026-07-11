@@ -19,7 +19,6 @@
             pkg-config,
             gtkmm4,
             gtk4-layer-shell,
-            xdg-utils-cxx,
           }:
           stdenv.mkDerivation {
             pname = "lerunner";
@@ -35,7 +34,6 @@
             buildInputs = [
               gtkmm4
               gtk4-layer-shell
-              xdg-utils-cxx
             ];
           }
         ) { };

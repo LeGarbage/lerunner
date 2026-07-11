@@ -1,6 +1,7 @@
 #pragma once
 
-#include <string>
+#include <giomm/icon.h>
+#include <glibmm/ustring.h>
 #include <vector>
 
 class Entry {
@@ -13,14 +14,14 @@ class Entry {
     Entry &operator=(const Entry &) = default;
     Entry &operator=(Entry &&) = delete;
 
-    [[nodiscard]] virtual std::string icon() const = 0;
-    [[nodiscard]] virtual std::string display() const = 0;
+    [[nodiscard]] virtual Glib::RefPtr<Gio::Icon> icon() const = 0;
+    [[nodiscard]] virtual Glib::ustring display() const = 0;
     [[nodiscard]] virtual double confidence() const = 0;
     virtual void selected() = 0;
 };
 
 struct PluginInfo {
-    std::string name;
+    Glib::ustring name;
 };
 
 class Plugin {
@@ -33,6 +34,6 @@ class Plugin {
     Plugin &operator=(const Plugin &) = delete;
     Plugin &operator=(Plugin &&) = delete;
 
-    [[nodiscard]] virtual std::vector<Entry *> get_entries(const std::string &input) = 0;
+    [[nodiscard]] virtual std::vector<Entry *> get_entries(const Glib::ustring &input) = 0;
     [[nodiscard]] virtual PluginInfo info() const = 0;
 };
