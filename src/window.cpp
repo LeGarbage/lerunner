@@ -1,12 +1,19 @@
 #include "window.hpp"
 #include "plugins/desktop-entries.hpp"
+#include <gdk/gdkkeysyms.h>
 #include <gdkmm/monitor.h>
 #include <gdkmm/rectangle.h>
+#include <gtkmm/cssprovider.h>
 #include <gtkmm/eventcontrollerfocus.h>
 #include <gtkmm/eventcontrollerkey.h>
 #include <ranges>
 
 MainWindow::MainWindow() {
+    auto css = Gtk::CssProvider::create();
+    css->load_from_resource("/style.css");
+    Gtk::CssProvider::add_provider_for_display(get_display(), css, 0);
+    add_css_class("test");
+
     set_default_size(640, 0);
 
     m_box.set_orientation(Gtk::Orientation::VERTICAL);
