@@ -4,7 +4,6 @@
 #include <gdkmm/rectangle.h>
 #include <gtkmm/eventcontrollerfocus.h>
 #include <gtkmm/eventcontrollerkey.h>
-#include <print>
 #include <ranges>
 
 MainWindow::MainWindow() {
@@ -53,11 +52,7 @@ void MainWindow::on_search_changed() {
                                                   : a->display() < b->display();
     });
 
-    std::println();
-
     for (auto *const entry : entries | std::views::take(10)) {
-        std::println("{}", entry->confidence());
-
         auto &button = m_desktop_app_buttons.emplace_back(entry->display());
 
         button.signal_clicked().connect(
@@ -68,7 +63,7 @@ void MainWindow::on_search_changed() {
     }
 }
 
-bool MainWindow::on_key_pressed(guint keyval, guint keycode, Gdk::ModifierType state) {
+bool MainWindow::on_key_pressed(guint keyval, guint /*keycode*/, Gdk::ModifierType /*state*/) {
     if (keyval == GDK_KEY_Escape) {
         // The focus handler already closes the window, so this prevents double closing
         unset_focus();

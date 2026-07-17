@@ -22,6 +22,9 @@ double DesktopEntry::confidence() const {
 }
 
 void DesktopEntry::selected() {
+    // WARN: Launch does not silence stdout/stderr. This means that the launched application will
+    // output to the terminal. If the terminal is then closed, the application may have issues if it
+    // tries to print to a nonexistent terminal
     m_desktop_entry->launch(std::vector<Glib::RefPtr<Gio::File>>{});
 }
 
