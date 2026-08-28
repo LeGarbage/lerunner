@@ -14,7 +14,7 @@ MainWindow::MainWindow() {
     Gtk::CssProvider::add_provider_for_display(get_display(), css, 0);
     add_css_class("test");
 
-    set_default_size(640, 0);
+    set_default_size(640, -1);
 
     m_box.set_orientation(Gtk::Orientation::VERTICAL);
     set_child(m_box);
