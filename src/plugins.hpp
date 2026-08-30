@@ -15,7 +15,7 @@ class Entry {
     Entry &operator=(Entry &&) = delete;
 
     [[nodiscard]] virtual Glib::RefPtr<Gio::Icon> icon() const = 0;
-    [[nodiscard]] virtual Glib::ustring display() const = 0;
+    [[nodiscard]] virtual Glib::ustring label() const = 0;
     [[nodiscard]] virtual double confidence() const = 0;
     virtual void selected() = 0;
 };

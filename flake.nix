@@ -48,7 +48,11 @@
           with pkgs;
           mkShell {
             inputsFrom = [ self.packages.${stdenv.hostPlatform.system}.lerunner ];
-            packages = [ clang-tools ];
+            packages = [
+              clang-tools
+              vscode-langservers-extracted
+              gdb
+            ];
           };
       });
     };

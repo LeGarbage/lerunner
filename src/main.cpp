@@ -1,9 +1,9 @@
 #include "window.hpp"
 #include <giomm/application.h>
-#include <gtkmm/application.h>
 #include <gtk4-layer-shell.h>
+#include <gtkmm/application.h>
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     auto app = Gtk::Application::create("org.gtkmm.example");
     MainWindow window;
 

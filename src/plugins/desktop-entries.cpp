@@ -13,7 +13,7 @@ Glib::RefPtr<Gio::Icon> DesktopEntry::icon() const {
     return m_desktop_entry->get_icon();
 }
 
-Glib::ustring DesktopEntry::display() const {
+Glib::ustring DesktopEntry::label() const {
     return m_desktop_entry->get_display_name();
 }
 
@@ -46,10 +46,9 @@ std::vector<Entry *> DesktopEntries::get_entries(const Glib::ustring &input) {
     return m_desktop_entries
            | std::views::transform([&input](auto &entry) {
                  entry.set_confidence(
-                     // rapidfuzz::fuzz::partial_ratio(input, lower(entry.display()))
-                     rapidfuzz::fuzz::WRatio(
-                         static_cast<std::string>(input),
-                         static_cast<std::string>(entry.display().lowercase())));
+                     // rapidfuzz::fuzz::partial_ratio(input, lower(entry.label()))
+                     rapidfuzz::fuzz::WRatio(static_cast<std::string>(input),
+                                             static_cast<std::string>(entry.label().lowercase())));
                  return static_cast<Entry *>(&entry);
              })
            | std::ranges::to<std::vector>();

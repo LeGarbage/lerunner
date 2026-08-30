@@ -10,7 +10,7 @@ class DesktopEntry : public Entry {
     DesktopEntry(Glib::RefPtr<Gio::DesktopAppInfo> desktop_entry);
 
     [[nodiscard]] Glib::RefPtr<Gio::Icon> icon() const override;
-    [[nodiscard]] Glib::ustring display() const override;
+    [[nodiscard]] Glib::ustring label() const override;
     [[nodiscard]] double confidence() const override;
     void selected() override;
 
