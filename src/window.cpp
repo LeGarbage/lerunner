@@ -3,6 +3,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <gdkmm/monitor.h>
 #include <gdkmm/rectangle.h>
+#include <giomm/icon.h>
 #include <gtkmm/cssprovider.h>
 #include <gtkmm/enums.h>
 #include <gtkmm/eventcontrollerfocus.h>
@@ -30,6 +31,7 @@ MainWindow::MainWindow() {
     m_box.append(m_entry);
     m_entry.set_placeholder_text("Search");
     m_entry.set_icon_from_icon_name("search-symbolic");
+    m_entry.signal_activate().connect(sigc::mem_fun(*this, &MainWindow::on_search_activated));
 
     // TODO: Add automatic plugin loading
     m_plugins.push_back(std::make_unique<DesktopEntries>());
@@ -77,6 +79,9 @@ void MainWindow::on_search_changed() {
 
             button->signal_clicked().connect(
                 sigc::bind(sigc::mem_fun(*this, &MainWindow::on_button_clicked), entry));
+            button->activate();
+
+            std::println("{}", button->activate());
 
             auto motion_controller = Gtk::EventControllerMotion::create();
             motion_controller->signal_enter().connect(
@@ -116,6 +121,10 @@ void MainWindow::on_search_changed() {
     }
 
     reset_selected_button();
+}
+
+void MainWindow::on_search_activated() {
+    dynamic_cast<Gtk::Button *>(get_default_widget())->activate();
 }
 
 bool MainWindow::on_key_pressed(guint keyval, guint /*keycode*/, Gdk::ModifierType /*state*/) {
@@ -165,6 +174,7 @@ void MainWindow::reset_selected_button() {
     std::println("Selected index: {}", m_selected_entry_index);
 
     if (m_entry_buttons.size() == 0) {
+        unset_default_widget();
         // The index underflows if the size is 0, so manually set it
         m_selected_entry_index = 0;
         return;

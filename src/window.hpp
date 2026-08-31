@@ -16,6 +16,7 @@ class MainWindow : public Gtk::Window {
     private:
     void on_button_clicked(Entry *entry);
     void on_search_changed();
+    void on_search_activated();
     bool on_key_pressed(guint keyval, guint keycode, Gdk::ModifierType state);
     void on_button_hovered(double x, double y, Gtk::Button *button);
     void set_selected_button(Gtk::Button *button);

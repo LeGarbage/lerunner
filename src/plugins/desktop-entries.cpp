@@ -1,6 +1,8 @@
 #include "desktop-entries.hpp"
+#include <format>
 #include <giomm/appinfo.h>
 #include <giomm/desktopappinfo.h>
+#include <glibmm/spawn.h>
 #include <glibmm/ustring.h>
 #include <ranges>
 #include <rapidfuzz/fuzz.hpp>
@@ -22,10 +24,15 @@ double DesktopEntry::confidence() const {
 }
 
 void DesktopEntry::selected() {
+    // TODO: Add a configuration and conditionally call launch or a user-defined command
+
     // WARN: Launch does not silence stdout/stderr. This means that the launched application will
     // output to the terminal. If the terminal is then closed, the application may have issues if it
     // tries to print to a nonexistent terminal
-    m_desktop_entry->launch(std::vector<Glib::RefPtr<Gio::File>>{});
+
+    // m_desktop_entry->launch(nullptr);
+    Glib::spawn_command_line_async(
+        std::format("uwsm-app -s app.slice -- {}", m_desktop_entry->get_id()));
 }
 
 void DesktopEntry::set_confidence(double new_confidence) {
