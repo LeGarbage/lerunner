@@ -20,3 +20,7 @@ button:hover {
 button.selected {
     background-color: color-mix(in srgb, currentColor 15%, transparent);
 }
+
+label.plugin-label {
+    color: color-mix(in srgb, currentColor 50%, transparent);
+}
