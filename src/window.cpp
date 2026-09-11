@@ -287,8 +287,11 @@ void MainWindow::toggle_selected_button() {
         auto *info_box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 10);
         box->append(*info_box);
 
-        auto *icon = Gtk::make_managed<Gtk::Image>();
-        info_box->append(*icon);
+        auto *open_arrow_padding = Gtk::make_managed<Gtk::Image>();
+        info_box->append(*open_arrow_padding);
+
+        auto *icon_padding = Gtk::make_managed<Gtk::Image>();
+        info_box->append(*icon_padding);
 
         auto *label = Gtk::make_managed<Gtk::Label>(sub_entry->label());
         info_box->append(*label);
