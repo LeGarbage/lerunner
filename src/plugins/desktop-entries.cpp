@@ -7,9 +7,44 @@
 #include <ranges>
 #include <rapidfuzz/fuzz.hpp>
 #include <string>
+#include <utility>
+
+DesktopAction::DesktopAction(Glib::RefPtr<Gio::DesktopAppInfo> desktop_entry,
+                             Glib::ustring action_name)
+    : m_desktop_entry{std::move(desktop_entry)},
+      m_action_name{std::move(action_name)} {}
+
+Glib::ustring DesktopAction::label() const {
+    return m_desktop_entry->get_action_name(m_action_name);
+}
+
+double DesktopAction::confidence() const {
+    return m_confidence;
+}
+
+void DesktopAction::selected() {
+    // TODO: Add a configuration and conditionally call launch or a user-defined command
+
+    // WARN: Launch does not silence stdout/stderr. This means that the launched application will
+    // output to the terminal. If the terminal is then closed, the application may have issues if it
+    // tries to print to a nonexistent terminal
+
+    // m_desktop_entry->launch_action(m_action_name);
+    Glib::spawn_command_line_async(std::format("uwsm-app -s app.slice -- {}:{}",
+                                               m_desktop_entry->get_id(),
+                                               static_cast<std::string>(m_action_name)));
+}
+
+void DesktopAction::set_confidence(double new_confidence) {
+    m_confidence = new_confidence;
+}
 
 DesktopEntry::DesktopEntry(Glib::RefPtr<Gio::DesktopAppInfo> desktop_entry)
-    : m_desktop_entry{std::move(desktop_entry)} {}
+    : m_desktop_entry{std::move(desktop_entry)} {
+    for (const auto &action : m_desktop_entry->list_actions()) {
+        m_desktop_actions.emplace_back(m_desktop_entry, action);
+    }
+}
 
 Glib::RefPtr<Gio::Icon> DesktopEntry::icon() const {
     return m_desktop_entry->get_icon();
@@ -33,6 +68,12 @@ void DesktopEntry::selected() {
     // m_desktop_entry->launch(nullptr);
     Glib::spawn_command_line_async(
         std::format("uwsm-app -s app.slice -- {}", m_desktop_entry->get_id()));
+}
+
+std::vector<SubEntry *> DesktopEntry::sub_entries() {
+    return m_desktop_actions
+           | std::views::transform([](auto &entry) { return static_cast<SubEntry *>(&entry); })
+           | std::ranges::to<std::vector>();
 }
 
 void DesktopEntry::set_confidence(double new_confidence) {

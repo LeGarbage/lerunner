@@ -24,3 +24,7 @@ button.selected {
 label.plugin-label {
     color: color-mix(in srgb, currentColor 50%, transparent);
 }
+
+.rotated {
+    transform: rotate(90deg);
+}

@@ -5,11 +5,10 @@
 #include <glibmm/ustring.h>
 #include <vector>
 
-class DesktopEntry : public Entry {
+class DesktopAction : public SubEntry {
     public:
-    DesktopEntry(Glib::RefPtr<Gio::DesktopAppInfo> desktop_entry);
+    DesktopAction(Glib::RefPtr<Gio::DesktopAppInfo> desktop_entry, Glib::ustring action_name);
 
-    [[nodiscard]] Glib::RefPtr<Gio::Icon> icon() const override;
     [[nodiscard]] Glib::ustring label() const override;
     [[nodiscard]] double confidence() const override;
     void selected() override;
@@ -18,6 +17,25 @@ class DesktopEntry : public Entry {
 
     private:
     Glib::RefPtr<Gio::DesktopAppInfo> m_desktop_entry;
+    Glib::ustring m_action_name;
+    double m_confidence{0};
+};
+
+class DesktopEntry : public Entry {
+    public:
+    DesktopEntry(Glib::RefPtr<Gio::DesktopAppInfo> desktop_entry);
+
+    [[nodiscard]] Glib::RefPtr<Gio::Icon> icon() const override;
+    [[nodiscard]] Glib::ustring label() const override;
+    [[nodiscard]] double confidence() const override;
+    [[nodiscard]] std::vector<SubEntry *> sub_entries() override;
+    void selected() override;
+
+    void set_confidence(double new_confidence);
+
+    private:
+    Glib::RefPtr<Gio::DesktopAppInfo> m_desktop_entry;
+    std::vector<DesktopAction> m_desktop_actions;
     double m_confidence{0};
 };
 
