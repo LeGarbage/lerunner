@@ -26,6 +26,7 @@ add_executable(${PROJECT_NAME}
   src/main.cpp
   src/window.cpp
   src/plugins/desktop-entries.cpp
+  src/plugins/system-actions.cpp
   ${RESOURCE_FILE}
 )
 

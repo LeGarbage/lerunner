@@ -1,5 +1,6 @@
 #include "window.hpp"
 #include "plugins/desktop-entries.hpp"
+#include "plugins/system-actions.hpp"
 #include <gdk/gdkkeysyms.h>
 #include <gdkmm/monitor.h>
 #include <gdkmm/rectangle.h>
@@ -18,7 +19,7 @@
 #include <print>
 #include <ranges>
 
-#define FLOATING
+// #define FLOATING
 
 MainWindow::MainWindow() {
     auto css = Gtk::CssProvider::create();
@@ -43,6 +44,7 @@ MainWindow::MainWindow() {
 
     // TODO: Add automatic plugin loading
     m_plugins.push_back(std::make_unique<DesktopEntries>());
+    m_plugins.push_back(std::make_unique<SystemActions>());
 
     auto key_controller = Gtk::EventControllerKey::create();
     key_controller->signal_key_pressed().connect(sigc::mem_fun(*this, &MainWindow::on_key_pressed),
@@ -71,6 +73,9 @@ void MainWindow::on_search_changed() {
     m_entry_buttons.clear();
     m_button_data.clear();
 
+    // TODO: Sort the plugins based on the confidence of their first entry and only take 10 total
+    std::vector<std::vector<Entry *>> all_entries;
+
     for (const auto &plugin : m_plugins) {
         auto entries =
             plugin->get_entries(text)
@@ -83,6 +88,10 @@ void MainWindow::on_search_changed() {
                                                       : a->label() < b->label();
         });
 
+        all_entries.push_back(entries);
+    }
+
+    for (auto entries : all_entries) {
         bool first_entry = true;
 
         for (auto *const entry : entries | std::views::take(10)) {

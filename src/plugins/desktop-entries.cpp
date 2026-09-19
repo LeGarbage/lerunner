@@ -18,10 +18,6 @@ Glib::ustring DesktopAction::label() const {
     return m_desktop_entry->get_action_name(m_action_name);
 }
 
-double DesktopAction::confidence() const {
-    return m_confidence;
-}
-
 void DesktopAction::selected() {
     // TODO: Add a configuration and conditionally call launch or a user-defined command
 
@@ -33,10 +29,6 @@ void DesktopAction::selected() {
     Glib::spawn_command_line_async(std::format("uwsm-app -s app.slice -- {}:{}",
                                                m_desktop_entry->get_id(),
                                                static_cast<std::string>(m_action_name)));
-}
-
-void DesktopAction::set_confidence(double new_confidence) {
-    m_confidence = new_confidence;
 }
 
 DesktopEntry::DesktopEntry(Glib::RefPtr<Gio::DesktopAppInfo> desktop_entry)

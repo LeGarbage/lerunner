@@ -1,25 +1,25 @@
 #pragma once
 
 #include "../plugins.hpp"
-#include <giomm/desktopappinfo.h>
-#include <glibmm/ustring.h>
-#include <vector>
 
-class DesktopAction : public SubEntry {
+class SubSystemAction : public SubEntry {
     public:
-    DesktopAction(Glib::RefPtr<Gio::DesktopAppInfo> desktop_entry, Glib::ustring action_name);
+    SubSystemAction(Glib::ustring name, Glib::ustring command);
 
     [[nodiscard]] Glib::ustring label() const override;
     void selected() override;
 
     private:
-    Glib::RefPtr<Gio::DesktopAppInfo> m_desktop_entry;
-    Glib::ustring m_action_name;
+    Glib::ustring m_name;
+    Glib::ustring m_command;
 };
 
-class DesktopEntry : public Entry {
+class SystemAction : public Entry {
     public:
-    DesktopEntry(Glib::RefPtr<Gio::DesktopAppInfo> desktop_entry);
+    SystemAction(Glib::ustring name,
+                 Glib::ustring command,
+                 const Glib::ustring &icon,
+                 std::vector<SubSystemAction> sub_actions = {});
 
     [[nodiscard]] Glib::RefPtr<Gio::Icon> icon() const override;
     [[nodiscard]] Glib::ustring label() const override;
@@ -30,18 +30,20 @@ class DesktopEntry : public Entry {
     void set_confidence(double new_confidence);
 
     private:
-    Glib::RefPtr<Gio::DesktopAppInfo> m_desktop_entry;
-    std::vector<DesktopAction> m_desktop_actions;
+    Glib::ustring m_name;
+    Glib::ustring m_command;
+    Glib::RefPtr<Gio::Icon> m_icon;
+    std::vector<SubSystemAction> m_sub_actions;
     double m_confidence{0};
 };
 
-class DesktopEntries : public Plugin {
+class SystemActions : public Plugin {
     public:
-    DesktopEntries();
+    SystemActions();
 
     [[nodiscard]] std::vector<Entry *> get_entries(const Glib::ustring &input) override;
     [[nodiscard]] PluginInfo info() const override;
 
     private:
-    std::vector<DesktopEntry> m_desktop_entries;
+    std::vector<SystemAction> m_system_actions;
 };

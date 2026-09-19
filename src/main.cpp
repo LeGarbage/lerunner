@@ -3,7 +3,7 @@
 #include <gtk4-layer-shell.h>
 #include <gtkmm/application.h>
 
-#define FLOATING
+// #define FLOATING
 
 int main(int argc, char *argv[]) {
     auto app = Gtk::Application::create("org.gtkmm.example");

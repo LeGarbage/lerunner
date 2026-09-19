@@ -28,7 +28,6 @@ class SubEntry : public Selectable {
     SubEntry &operator=(SubEntry &&) = delete;
 
     [[nodiscard]] virtual Glib::ustring label() const = 0;
-    [[nodiscard]] virtual double confidence() const = 0;
 };
 
 class Entry : public Selectable {
