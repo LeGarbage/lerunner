@@ -1,6 +1,6 @@
 #pragma once
 
-#include "plugins.hpp"
+#include "plugin.hpp"
 #include <cstddef>
 #include <gtkmm/box.h>
 #include <gtkmm/button.h>

@@ -74,13 +74,10 @@ void MainWindow::on_search_changed() {
     m_button_data.clear();
 
     // TODO: Sort the plugins based on the confidence of their first entry and only take 10 total
-    std::vector<std::vector<Entry *>> all_entries;
+    std::vector<std::pair<Plugin *, std::vector<Entry *>>> all_entries;
 
     for (const auto &plugin : m_plugins) {
-        auto entries =
-            plugin->get_entries(text)
-            | std::views::filter([](const auto *entry) { return entry->confidence() > 75; })
-            | std::ranges::to<std::vector>();
+        auto entries = plugin->get_entries(text);
 
         std::ranges::sort(entries, [](const auto *a, const auto *b) {
             // Sort entries by confidence and then by name
@@ -88,13 +85,15 @@ void MainWindow::on_search_changed() {
                                                       : a->label() < b->label();
         });
 
-        all_entries.push_back(entries);
+        all_entries.emplace_back(plugin.get(), entries);
     }
 
-    for (auto entries : all_entries) {
+    std::println();
+    for (auto [plugin, entries] : all_entries) {
         bool first_entry = true;
 
         for (auto *const entry : entries | std::views::take(10)) {
+            std::println("{} confidence: {}", entry->label().c_str(), entry->confidence());
             auto &button = m_entry_buttons.emplace_back(std::make_unique<Gtk::Button>());
             m_button_data.push_back(entry);
 

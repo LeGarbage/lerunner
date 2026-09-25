@@ -1,7 +1,7 @@
 #include "system-actions.hpp"
+#include "../matcher/matcher.hpp"
 #include <glibmm/spawn.h>
 #include <ranges>
-#include <rapidfuzz/fuzz.hpp>
 #include <utility>
 
 SubSystemAction::SubSystemAction(Glib::ustring name, Glib::ustring command)
@@ -34,7 +34,7 @@ Glib::ustring SystemAction::label() const {
     return m_name;
 }
 
-double SystemAction::confidence() const {
+int SystemAction::confidence() const {
     return m_confidence;
 }
 
@@ -49,7 +49,7 @@ std::vector<SubEntry *> SystemAction::sub_entries() {
            | std::ranges::to<std::vector>();
 }
 
-void SystemAction::set_confidence(double new_confidence) {
+void SystemAction::set_confidence(int new_confidence) {
     m_confidence = new_confidence;
 }
 
@@ -66,11 +66,10 @@ SystemActions::SystemActions() {
 }
 
 std::vector<Entry *> SystemActions::get_entries(const Glib::ustring &input) {
+    Matcher matcher(input);
     return m_system_actions
-           | std::views::transform([&input](auto &action) {
-                 action.set_confidence(
-                     rapidfuzz::fuzz::WRatio(static_cast<std::string>(input),
-                                             static_cast<std::string>(action.label().lowercase())));
+           | std::views::transform([&matcher](auto &action) {
+                 action.set_confidence(matcher.score(action.label().lowercase()));
                  return static_cast<Entry *>(&action);
              })
            | std::ranges::to<std::vector>();

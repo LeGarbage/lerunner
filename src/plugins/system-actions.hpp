@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../plugins.hpp"
+#include "../plugin.hpp"
 
 class SubSystemAction : public SubEntry {
     public:
@@ -23,18 +23,18 @@ class SystemAction : public Entry {
 
     [[nodiscard]] Glib::RefPtr<Gio::Icon> icon() const override;
     [[nodiscard]] Glib::ustring label() const override;
-    [[nodiscard]] double confidence() const override;
+    [[nodiscard]] int confidence() const override;
     [[nodiscard]] std::vector<SubEntry *> sub_entries() override;
     void selected() override;
 
-    void set_confidence(double new_confidence);
+    void set_confidence(int new_confidence);
 
     private:
     Glib::ustring m_name;
     Glib::ustring m_command;
     Glib::RefPtr<Gio::Icon> m_icon;
     std::vector<SubSystemAction> m_sub_actions;
-    double m_confidence{0};
+    int m_confidence{0};
 };
 
 class SystemActions : public Plugin {

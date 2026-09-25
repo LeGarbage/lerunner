@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../plugins.hpp"
+#include "../plugin.hpp"
 #include <giomm/desktopappinfo.h>
 #include <glibmm/ustring.h>
 #include <vector>
@@ -23,16 +23,16 @@ class DesktopEntry : public Entry {
 
     [[nodiscard]] Glib::RefPtr<Gio::Icon> icon() const override;
     [[nodiscard]] Glib::ustring label() const override;
-    [[nodiscard]] double confidence() const override;
+    [[nodiscard]] int confidence() const override;
     [[nodiscard]] std::vector<SubEntry *> sub_entries() override;
     void selected() override;
 
-    void set_confidence(double new_confidence);
+    void set_confidence(int new_confidence);
 
     private:
     Glib::RefPtr<Gio::DesktopAppInfo> m_desktop_entry;
     std::vector<DesktopAction> m_desktop_actions;
-    double m_confidence{0};
+    int m_confidence{0};
 };
 
 class DesktopEntries : public Plugin {

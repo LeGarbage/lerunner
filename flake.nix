@@ -22,7 +22,6 @@
             pkg-config,
             gtkmm4,
             gtk4-layer-shell,
-            rapidfuzz-cpp,
           }:
           stdenv.mkDerivation {
             pname = "lerunner";
@@ -38,7 +37,6 @@
             buildInputs = [
               gtkmm4
               gtk4-layer-shell
-              rapidfuzz-cpp
             ];
           }
         ) { };
@@ -52,9 +50,11 @@
           mkShell {
             inputsFrom = [ self.packages.${stdenv.hostPlatform.system}.lerunner ];
             packages = [
-              clang-tools
+              # clang-tools
+              llvmPackages_22.clang-tools
               vscode-langservers-extracted
               gdb
+              gtest
             ];
           };
       });

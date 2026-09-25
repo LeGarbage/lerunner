@@ -1,11 +1,11 @@
 #include "desktop-entries.hpp"
+#include "../matcher/matcher.hpp"
 #include <format>
 #include <giomm/appinfo.h>
 #include <giomm/desktopappinfo.h>
 #include <glibmm/spawn.h>
 #include <glibmm/ustring.h>
 #include <ranges>
-#include <rapidfuzz/fuzz.hpp>
 #include <string>
 #include <utility>
 
@@ -46,7 +46,7 @@ Glib::ustring DesktopEntry::label() const {
     return m_desktop_entry->get_display_name();
 }
 
-double DesktopEntry::confidence() const {
+int DesktopEntry::confidence() const {
     return m_confidence;
 }
 
@@ -68,7 +68,7 @@ std::vector<SubEntry *> DesktopEntry::sub_entries() {
            | std::ranges::to<std::vector>();
 }
 
-void DesktopEntry::set_confidence(double new_confidence) {
+void DesktopEntry::set_confidence(int new_confidence) {
     m_confidence = new_confidence;
 }
 
@@ -83,12 +83,10 @@ DesktopEntries::DesktopEntries() {
 }
 
 std::vector<Entry *> DesktopEntries::get_entries(const Glib::ustring &input) {
+    Matcher matcher(input);
     return m_desktop_entries
-           | std::views::transform([&input](auto &entry) {
-                 entry.set_confidence(
-                     // rapidfuzz::fuzz::partial_ratio(input, lower(entry.label()))
-                     rapidfuzz::fuzz::WRatio(static_cast<std::string>(input),
-                                             static_cast<std::string>(entry.label().lowercase())));
+           | std::views::transform([&matcher](auto &entry) {
+                 entry.set_confidence(matcher.score(entry.label().lowercase()));
                  return static_cast<Entry *>(&entry);
              })
            | std::ranges::to<std::vector>();

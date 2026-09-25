@@ -42,7 +42,7 @@ class Entry : public Selectable {
 
     [[nodiscard]] virtual Glib::RefPtr<Gio::Icon> icon() const = 0;
     [[nodiscard]] virtual Glib::ustring label() const = 0;
-    [[nodiscard]] virtual double confidence() const = 0;
+    [[nodiscard]] virtual int confidence() const = 0;
     [[nodiscard]] virtual std::vector<SubEntry *> sub_entries() = 0;
 };
 
