@@ -80,19 +80,31 @@ void MainWindow::on_search_changed() {
         auto entries = plugin->get_entries(text);
 
         std::ranges::sort(entries, [](const auto *a, const auto *b) {
-            // Sort entries by confidence and then by name
-            return a->confidence() != b->confidence() ? a->confidence() > b->confidence()
-                                                      : a->label() < b->label();
+            // Sort entries by confidence, then length, and then by name
+            if (a->confidence() != b->confidence()) { return a->confidence() > b->confidence(); }
+            if (a->label().size() != b->label().size()) {
+                return a->label().size() < b->label().size();
+            }
+
+            return a->label() > b->label();
         });
 
         all_entries.emplace_back(plugin.get(), entries);
     }
 
+    std::ranges::sort(all_entries, [](const auto &a, const auto &b) {
+        return a.second[0]->confidence() > b.second[0]->confidence();
+    });
+
+    auto top_entry_confidence = all_entries[0].second[0]->confidence();
+
     std::println();
     for (auto [plugin, entries] : all_entries) {
         bool first_entry = true;
 
-        for (auto *const entry : entries | std::views::take(10)) {
+        for (auto *const entry : entries | std::views::filter([=](auto a) {
+                                     return a->confidence() > top_entry_confidence / 4;
+                                 })) {
             std::println("{} confidence: {}", entry->label().c_str(), entry->confidence());
             auto &button = m_entry_buttons.emplace_back(std::make_unique<Gtk::Button>());
             m_button_data.push_back(entry);
