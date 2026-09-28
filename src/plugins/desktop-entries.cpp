@@ -1,5 +1,6 @@
 #include "desktop-entries.hpp"
 #include "../matcher/matcher.hpp"
+#include <algorithm>
 #include <format>
 #include <giomm/appinfo.h>
 #include <giomm/desktopappinfo.h>
@@ -82,11 +83,20 @@ DesktopEntries::DesktopEntries() {
     }
 }
 
+std::vector<Glib::ustring> DesktopEntry::get_keywords() {
+    return m_desktop_entry->get_keywords();
+}
+
 std::vector<Entry *> DesktopEntries::get_entries(const Glib::ustring &input) {
     Matcher matcher(input);
     return m_desktop_entries
-           | std::views::transform([&matcher](auto &entry) {
-                 entry.set_confidence(matcher.score(entry.label().lowercase()));
+           | std::views::transform([&matcher](DesktopEntry &entry) {
+                 auto keyword_confidence = std::ranges::fold_left(
+                     entry.get_keywords(), 0, [&matcher](auto accum, const auto &keyword) {
+                         return accum + matcher.score(keyword.lowercase());
+                     });
+                 entry.set_confidence(matcher.score(entry.label().lowercase())
+                                      + keyword_confidence);
                  return static_cast<Entry *>(&entry);
              })
            | std::ranges::to<std::vector>();
