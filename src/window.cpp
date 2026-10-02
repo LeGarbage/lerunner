@@ -71,15 +71,14 @@ void MainWindow::on_search_changed() {
     }
 
     m_entry_buttons.clear();
-    m_button_data.clear();
 
     // TODO: Sort the plugins based on the confidence of their first entry and only take 10 total
-    std::vector<std::pair<Plugin *, std::vector<Entry *>>> all_entries;
+    std::vector<std::pair<Plugin *, std::vector<std::shared_ptr<Entry>>>> all_entries;
 
     for (const auto &plugin : m_plugins) {
         auto entries = plugin->get_entries(text);
 
-        std::ranges::sort(entries, [](const auto *a, const auto *b) {
+        std::ranges::sort(entries, [](const auto &a, const auto &b) {
             // Sort entries by confidence, then length, and then by name
             if (a->confidence() != b->confidence()) { return a->confidence() > b->confidence(); }
             if (a->label().size() != b->label().size()) {
@@ -102,57 +101,17 @@ void MainWindow::on_search_changed() {
     for (auto [plugin, entries] : all_entries) {
         bool first_entry = true;
 
-        for (auto *const entry : entries | std::views::filter([=](auto a) {
+        for (const auto &entry : entries | std::views::filter([&](const auto &a) {
                                      return a->confidence() > top_entry_confidence / 4;
                                  })) {
             std::println("{} confidence: {}", entry->label().c_str(), entry->confidence());
-            auto &button = m_entry_buttons.emplace_back(std::make_unique<Gtk::Button>());
-            m_button_data.push_back(entry);
-
-            button->signal_clicked().connect(
-                sigc::bind(sigc::mem_fun(*this, &MainWindow::on_button_clicked), entry));
-
-            auto motion_controller = Gtk::EventControllerMotion::create();
-            motion_controller->signal_enter().connect(
-                sigc::bind(sigc::mem_fun(*this, &MainWindow::on_button_hovered), button.get()));
-            button->add_controller(motion_controller);
+            m_entry_buttons.push_back(std::make_unique<EntryButton>(entry));
+            auto &button = m_entry_buttons.back();
+            button->signal_hovered().connect(sigc::mem_fun(*this, &MainWindow::on_button_hovered));
 
             m_button_box.append(*button);
 
-            button->set_can_focus(false);
-
-            auto *box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 40);
-            button->set_child(*box);
-
-            auto *plugin_box = Gtk::make_managed<Gtk::Box>();
-            box->append(*plugin_box);
-            plugin_box->set_size_request(get_width() / 3);
-            plugin_box->set_homogeneous();
-
-            if (first_entry) {
-                auto *plugin_label = Gtk::make_managed<Gtk::Label>(plugin->info().name);
-                plugin_box->append(*plugin_label);
-                plugin_label->set_halign(Gtk::Align::END);
-                plugin_label->add_css_class("plugin-label");
-
-                first_entry = false;
-            }
-
-            auto *info_box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 10);
-            box->append(*info_box);
-
-            if (entry->sub_entries().size() > 0) {
-                auto *open_arrow = Gtk::make_managed<Gtk::Image>();
-                open_arrow->set_from_icon_name("arrow-right-symbolic");
-                open_arrow->add_css_class("open-arrow");
-                info_box->append(*open_arrow);
-            }
-
-            auto *icon = Gtk::make_managed<Gtk::Image>(entry->icon());
-            info_box->append(*icon);
-
-            auto *label = Gtk::make_managed<Gtk::Label>(entry->label());
-            info_box->append(*label);
+            if (first_entry) { button->add_plugin_label(*plugin); }
         }
     }
 
@@ -185,13 +144,13 @@ bool MainWindow::on_key_pressed(guint keyval, guint /*keycode*/, Gdk::ModifierTy
     return false;
 }
 
-void MainWindow::on_button_hovered(double /*x*/, double /*y*/, Gtk::Button *button) {
+void MainWindow::on_button_hovered(EntryButtonBase &button) {
     set_selected_button(button);
 }
 
-void MainWindow::set_selected_button(Gtk::Button *new_button) {
+void MainWindow::set_selected_button(EntryButtonBase &new_button) {
     const auto &buttons = m_button_box.get_children();
-    const auto selected_it = std::ranges::find(buttons, new_button);
+    const auto selected_it = std::ranges::find(buttons, &new_button);
 
     m_selected_entry_index = std::distance(buttons.begin(), selected_it);
 
@@ -256,7 +215,7 @@ void MainWindow::clean_up_toggled(std::size_t toggled_sub_count) {
 
 void MainWindow::toggle_selected_button() {
     auto *const selected_button =
-        dynamic_cast<Gtk::Button *>(m_button_box.get_children()[m_selected_entry_index]);
+        dynamic_cast<EntryButton *>(m_button_box.get_children()[m_selected_entry_index]);
     const auto selected_it =
         std::ranges::find_if(m_entry_buttons, [selected_button](const auto &button) {
             return button.get() == selected_button;
@@ -266,7 +225,7 @@ void MainWindow::toggle_selected_button() {
 
     const auto real_index = std::distance(m_entry_buttons.begin(), selected_it);
 
-    const auto &sub_entries = m_button_data[real_index]->sub_entries();
+    const auto &sub_entries = m_entry_buttons[real_index]->get_sub_entries();
     if (sub_entries.size() == 0) { return; }
 
     if (m_entry_buttons[real_index].get() == m_toggled_button) {
@@ -281,39 +240,12 @@ void MainWindow::toggle_selected_button() {
     selected_button->get_child()->get_last_child()->get_first_child()->add_css_class("rotated");
     m_toggled_button = selected_button;
 
-    for (auto *const sub_entry : sub_entries) {
-        auto &button = m_toggled_sub_buttons.emplace_back(std::make_unique<Gtk::Button>());
-
-        button->signal_clicked().connect(
-            sigc::bind(sigc::mem_fun(*this, &MainWindow::on_button_clicked), sub_entry));
-
-        auto motion_controller = Gtk::EventControllerMotion::create();
-        motion_controller->signal_enter().connect(
-            sigc::bind(sigc::mem_fun(*this, &MainWindow::on_button_hovered), button.get()));
-        button->add_controller(motion_controller);
+    for (const auto &sub_entry : sub_entries) {
+        auto &button =
+            m_toggled_sub_buttons.emplace_back(std::make_unique<SubEntryButton>(sub_entry));
 
         m_button_box.insert_child_after(*button, *selected_button);
 
-        button->set_can_focus(false);
-
-        auto *box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 40);
-        button->set_child(*box);
-
-        auto *plugin_box = Gtk::make_managed<Gtk::Box>();
-        box->append(*plugin_box);
-        plugin_box->set_size_request(get_width() / 3);
-        plugin_box->set_homogeneous();
-
-        auto *info_box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 10);
-        box->append(*info_box);
-
-        auto *open_arrow_padding = Gtk::make_managed<Gtk::Image>();
-        info_box->append(*open_arrow_padding);
-
-        auto *icon_padding = Gtk::make_managed<Gtk::Image>();
-        info_box->append(*icon_padding);
-
-        auto *label = Gtk::make_managed<Gtk::Label>(sub_entry->label());
-        info_box->append(*label);
+        button->signal_hovered().connect(sigc::mem_fun(*this, &MainWindow::on_button_hovered));
     }
 }

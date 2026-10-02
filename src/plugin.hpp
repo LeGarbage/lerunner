@@ -2,6 +2,7 @@
 
 #include <giomm/icon.h>
 #include <glibmm/ustring.h>
+#include <memory>
 #include <vector>
 
 class Selectable {
@@ -43,7 +44,7 @@ class Entry : public Selectable {
     [[nodiscard]] virtual Glib::RefPtr<Gio::Icon> icon() const = 0;
     [[nodiscard]] virtual Glib::ustring label() const = 0;
     [[nodiscard]] virtual int confidence() const = 0;
-    [[nodiscard]] virtual std::vector<SubEntry *> sub_entries() = 0;
+    [[nodiscard]] virtual std::vector<std::shared_ptr<SubEntry>> sub_entries() = 0;
 };
 
 struct PluginInfo {
@@ -60,6 +61,7 @@ class Plugin {
     Plugin &operator=(const Plugin &) = delete;
     Plugin &operator=(Plugin &&) = delete;
 
-    [[nodiscard]] virtual std::vector<Entry *> get_entries(const Glib::ustring &input) = 0;
+    [[nodiscard]] virtual std::vector<std::shared_ptr<Entry>>
+    get_entries(const Glib::ustring &input) = 0;
     [[nodiscard]] virtual PluginInfo info() const = 0;
 };

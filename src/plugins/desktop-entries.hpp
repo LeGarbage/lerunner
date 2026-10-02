@@ -24,7 +24,7 @@ class DesktopEntry : public Entry {
     [[nodiscard]] Glib::RefPtr<Gio::Icon> icon() const override;
     [[nodiscard]] Glib::ustring label() const override;
     [[nodiscard]] int confidence() const override;
-    [[nodiscard]] std::vector<SubEntry *> sub_entries() override;
+    [[nodiscard]] std::vector<std::shared_ptr<SubEntry>> sub_entries() override;
     void selected() override;
 
     void set_confidence(int new_confidence);
@@ -32,7 +32,7 @@ class DesktopEntry : public Entry {
 
     private:
     Glib::RefPtr<Gio::DesktopAppInfo> m_desktop_entry;
-    std::vector<DesktopAction> m_desktop_actions;
+    std::vector<std::shared_ptr<DesktopAction>> m_desktop_actions;
     int m_confidence{0};
 };
 
@@ -40,9 +40,10 @@ class DesktopEntries : public Plugin {
     public:
     DesktopEntries();
 
-    [[nodiscard]] std::vector<Entry *> get_entries(const Glib::ustring &input) override;
+    [[nodiscard]] std::vector<std::shared_ptr<Entry>>
+    get_entries(const Glib::ustring &input) override;
     [[nodiscard]] PluginInfo info() const override;
 
     private:
-    std::vector<DesktopEntry> m_desktop_entries;
+    std::vector<std::shared_ptr<DesktopEntry>> m_desktop_entries;
 };

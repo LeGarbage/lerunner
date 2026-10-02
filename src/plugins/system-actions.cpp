@@ -19,7 +19,7 @@ void SubSystemAction::selected() {
 SystemAction::SystemAction(Glib::ustring name,
                            Glib::ustring command,
                            const Glib::ustring &icon,
-                           std::vector<SubSystemAction> sub_actions)
+                           std::vector<std::shared_ptr<SubSystemAction>> sub_actions)
     : m_name(std::move(name)),
       m_command(std::move(command)),
       m_sub_actions(std::move(sub_actions)) {
@@ -42,10 +42,11 @@ void SystemAction::selected() {
     Glib::spawn_command_line_async(m_command);
 }
 
-std::vector<SubEntry *> SystemAction::sub_entries() {
+std::vector<std::shared_ptr<SubEntry>> SystemAction::sub_entries() {
     return m_sub_actions
-           | std::views::transform(
-               [](auto &sub_action) { return static_cast<SubEntry *>(&sub_action); })
+           | std::views::transform([](const auto &sub_action) {
+                 return std::static_pointer_cast<SubEntry>(sub_action);
+             })
            | std::ranges::to<std::vector>();
 }
 
@@ -53,24 +54,26 @@ void SystemAction::set_confidence(int new_confidence) {
     m_confidence = new_confidence;
 }
 
-SystemActions::SystemActions() {
-    m_system_actions = {
-        SystemAction("Suspend", "systemctl suspend", "xfsm-suspend"),
-        SystemAction("Lock", "loginctl lock-session", "xfsm-lock"),
-        SystemAction("Log Out", "loginctl terminate-session $XDG_SESSION_ID", "xfsm-logout"),
-        SystemAction("Restart",
-                     "systemctl reboot",
-                     "xfsm-reboot",
-                     {SubSystemAction("Restart to BIOS", "systemctl reboot --firmware-setup")}),
-        SystemAction("Shut Down", "systemctl poweroff", "xfsm-shutdown")};
-}
+SystemActions::SystemActions()
+    : m_system_actions{
+          std::make_shared<SystemAction>("Suspend", "systemctl suspend", "xfsm-suspend"),
+          std::make_shared<SystemAction>("Lock", "loginctl lock-session", "xfsm-lock"),
+          std::make_shared<SystemAction>(
+              "Log Out", "loginctl terminate-session $XDG_SESSION_ID", "xfsm-logout"),
+          std::make_shared<SystemAction>(
+              "Restart",
+              "systemctl reboot",
+              "xfsm-reboot",
+              std::vector{std::make_shared<SubSystemAction>("Restart to BIOS",
+                                                            "systemctl reboot --firmware-setup")}),
+          std::make_shared<SystemAction>("Shut Down", "systemctl poweroff", "xfsm-shutdown")} {}
 
-std::vector<Entry *> SystemActions::get_entries(const Glib::ustring &input) {
+std::vector<std::shared_ptr<Entry>> SystemActions::get_entries(const Glib::ustring &input) {
     Matcher matcher(input);
     return m_system_actions
            | std::views::transform([&matcher](auto &action) {
-                 action.set_confidence(matcher.score(action.label().lowercase()));
-                 return static_cast<Entry *>(&action);
+                 action->set_confidence(matcher.score(action->label().lowercase()));
+                 return std::static_pointer_cast<Entry>(action);
              })
            | std::ranges::to<std::vector>();
 }

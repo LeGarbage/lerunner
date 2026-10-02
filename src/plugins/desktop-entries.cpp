@@ -35,7 +35,7 @@ void DesktopAction::selected() {
 DesktopEntry::DesktopEntry(Glib::RefPtr<Gio::DesktopAppInfo> desktop_entry)
     : m_desktop_entry{std::move(desktop_entry)} {
     for (const auto &action : m_desktop_entry->list_actions()) {
-        m_desktop_actions.emplace_back(m_desktop_entry, action);
+        m_desktop_actions.push_back(std::make_shared<DesktopAction>(m_desktop_entry, action));
     }
 }
 
@@ -63,9 +63,10 @@ void DesktopEntry::selected() {
         std::format("uwsm-app -s app.slice -- {}", m_desktop_entry->get_id()));
 }
 
-std::vector<SubEntry *> DesktopEntry::sub_entries() {
+std::vector<std::shared_ptr<SubEntry>> DesktopEntry::sub_entries() {
     return m_desktop_actions
-           | std::views::transform([](auto &entry) { return static_cast<SubEntry *>(&entry); })
+           | std::views::transform(
+               [](const auto &entry) { return std::static_pointer_cast<SubEntry>(entry); })
            | std::ranges::to<std::vector>();
 }
 
@@ -79,7 +80,8 @@ DesktopEntries::DesktopEntries() {
     for (const auto &app : apps) {
         if (!app->should_show()) { continue; }
 
-        m_desktop_entries.emplace_back(Gio::DesktopAppInfo::create(app->get_id()));
+        m_desktop_entries.push_back(
+            std::make_shared<DesktopEntry>(Gio::DesktopAppInfo::create(app->get_id())));
     }
 }
 
@@ -87,17 +89,17 @@ std::vector<Glib::ustring> DesktopEntry::get_keywords() {
     return m_desktop_entry->get_keywords();
 }
 
-std::vector<Entry *> DesktopEntries::get_entries(const Glib::ustring &input) {
+std::vector<std::shared_ptr<Entry>> DesktopEntries::get_entries(const Glib::ustring &input) {
     Matcher matcher(input);
     return m_desktop_entries
-           | std::views::transform([&matcher](DesktopEntry &entry) {
+           | std::views::transform([&matcher](auto &entry) {
                  auto keyword_confidence = std::ranges::fold_left(
-                     entry.get_keywords(), 0, [&matcher](auto accum, const auto &keyword) {
+                     entry->get_keywords(), 0, [&matcher](auto accum, const auto &keyword) {
                          return accum + matcher.score(keyword.lowercase());
                      });
-                 entry.set_confidence(matcher.score(entry.label().lowercase())
-                                      + keyword_confidence);
-                 return static_cast<Entry *>(&entry);
+                 entry->set_confidence(matcher.score(entry->label().lowercase())
+                                       + keyword_confidence);
+                 return std::static_pointer_cast<Entry>(entry);
              })
            | std::ranges::to<std::vector>();
 }

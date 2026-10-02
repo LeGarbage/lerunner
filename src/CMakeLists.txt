@@ -19,6 +19,7 @@ compile_gresources(RESOURCE_FILE
 add_executable(${PROJECT_NAME}
   main.cpp
   window.cpp
+  entry-button.cpp
   plugins/desktop-entries.cpp
   plugins/system-actions.cpp
   ${RESOURCE_FILE}
