@@ -17,26 +17,24 @@
       packages = forAllSystems (pkgs: rec {
         lerunner = pkgs.callPackage (
           {
-            stdenv,
-            cmake,
+            rustPlatform,
+            gtk4,
             pkg-config,
-            gtkmm4,
-            gtk4-layer-shell,
           }:
-          stdenv.mkDerivation {
+          rustPlatform.buildRustPackage {
             pname = "lerunner";
             version = "0.1.0";
 
             src = ./.;
 
+            cargoLock.lockFile = ./Cargo.lock;
+
             nativeBuildInputs = [
-              cmake
               pkg-config
             ];
 
             buildInputs = [
-              gtkmm4
-              gtk4-layer-shell
+              gtk4
             ];
           }
         ) { };
@@ -50,11 +48,9 @@
           mkShell {
             inputsFrom = [ self.packages.${stdenv.hostPlatform.system}.lerunner ];
             packages = [
-              # clang-tools
-              llvmPackages_22.clang-tools
-              vscode-langservers-extracted
-              gdb
-              gtest
+              rust-analyzer
+              rustfmt
+              clippy
             ];
           };
       });

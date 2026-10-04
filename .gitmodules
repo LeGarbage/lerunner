@@ -1,3 +1,0 @@
-[submodule "cmake/GCR_CMake"]
-	path = cmake/GCR_CMake
-	url = git@github.com:Makman2/GCR_CMake.git

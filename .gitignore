@@ -1,4 +1,3 @@
-build/
+/target
+.direnv
 result
-.direnv/
-.cache/
