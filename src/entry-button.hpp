@@ -16,7 +16,7 @@ class EntryButtonBase : public Gtk::Button {
 
 class EntryButton : public EntryButtonBase {
     public:
-    EntryButton(std::shared_ptr<Entry> entry);
+    EntryButton(std::shared_ptr<Entry> entry, int width);
 
     std::vector<std::shared_ptr<SubEntry>> get_sub_entries() const;
 
@@ -32,7 +32,7 @@ class EntryButton : public EntryButtonBase {
 
 class SubEntryButton : public EntryButtonBase {
     public:
-    SubEntryButton(std::shared_ptr<SubEntry> sub_entry);
+    SubEntryButton(std::shared_ptr<SubEntry> sub_entry, int width);
 
     void on_clicked() override;
 

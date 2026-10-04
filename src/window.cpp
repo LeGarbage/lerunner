@@ -19,7 +19,7 @@
 #include <print>
 #include <ranges>
 
-// #define FLOATING
+#define FLOATING
 
 MainWindow::MainWindow() {
     auto css = Gtk::CssProvider::create();
@@ -105,13 +105,16 @@ void MainWindow::on_search_changed() {
                                      return a->confidence() > top_entry_confidence / 4;
                                  })) {
             std::println("{} confidence: {}", entry->label().c_str(), entry->confidence());
-            m_entry_buttons.push_back(std::make_unique<EntryButton>(entry));
+            m_entry_buttons.push_back(std::make_unique<EntryButton>(entry, get_width()));
             auto &button = m_entry_buttons.back();
             button->signal_hovered().connect(sigc::mem_fun(*this, &MainWindow::on_button_hovered));
 
             m_button_box.append(*button);
 
-            if (first_entry) { button->add_plugin_label(*plugin); }
+            if (first_entry) {
+                button->add_plugin_label(*plugin);
+                first_entry = false;
+            }
         }
     }
 
@@ -241,8 +244,8 @@ void MainWindow::toggle_selected_button() {
     m_toggled_button = selected_button;
 
     for (const auto &sub_entry : sub_entries) {
-        auto &button =
-            m_toggled_sub_buttons.emplace_back(std::make_unique<SubEntryButton>(sub_entry));
+        m_toggled_sub_buttons.push_back(std::make_unique<SubEntryButton>(sub_entry, get_width()));
+        auto &button = m_toggled_sub_buttons.back();
 
         m_button_box.insert_child_after(*button, *selected_button);
 
