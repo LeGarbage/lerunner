@@ -28,7 +28,6 @@ class DesktopEntry : public Entry {
     void selected() override;
 
     void set_confidence(int new_confidence);
-    std::vector<Glib::ustring> get_keywords();
 
     private:
     Glib::RefPtr<Gio::DesktopAppInfo> m_desktop_entry;
