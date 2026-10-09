@@ -122,7 +122,9 @@ void MainWindow::on_search_changed() {
 }
 
 void MainWindow::on_search_activated() {
-    dynamic_cast<Gtk::Button *>(get_default_widget())->activate();
+    if (auto buttons = m_button_box.get_children(); buttons.size() != 0) {
+        buttons[m_selected_entry_index]->activate();
+    }
 }
 
 bool MainWindow::on_key_pressed(guint keyval, guint /*keycode*/, Gdk::ModifierType /*state*/) {
@@ -171,13 +173,13 @@ void MainWindow::set_selected_button(int offset) {
 }
 
 void MainWindow::reset_selected_button() {
-    // Cap the index just in case the list shrunk
-    m_selected_entry_index = std::min(m_selected_entry_index, m_button_box.get_children().size());
+    // Cap the index in case the list shrunk
+    m_selected_entry_index =
+        std::min(m_selected_entry_index, m_button_box.get_children().size() - 1);
 
     std::println("Selected index: {}", m_selected_entry_index);
 
     if (m_entry_buttons.size() == 0) {
-        unset_default_widget();
         // The index underflows if the size is 0, so manually set it
         m_selected_entry_index = 0;
         return;
@@ -188,7 +190,6 @@ void MainWindow::reset_selected_button() {
     }
 
     m_button_box.get_children()[m_selected_entry_index]->add_css_class("selected");
-    set_default_widget(*m_button_box.get_children()[m_selected_entry_index]);
 }
 
 void MainWindow::clean_up_toggled(std::size_t toggled_sub_count) {
