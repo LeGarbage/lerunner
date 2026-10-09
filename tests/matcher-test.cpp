@@ -43,6 +43,19 @@ TEST(TestMatcher, OutOfOrderMatch) {
     Matcher m("tu");
     ASSERT_EQ(m.score("out"), (2 * Matcher::SCORE_MATCH) - Matcher::MATCH_OUT_OF_ORDER_PENALTY);
 }
+
+TEST(TestMatcher, EmptyPattern) {
+    Matcher m("");
+    ASSERT_EQ(m.score("I am empty"), 0);
+
+    Matcher o("");
+    ASSERT_EQ(o.score(""), 0);
+}
+
+TEST(TestMatcher, NotFound) {
+    Matcher m("aaaaaaaaaa");
+    ASSERT_EQ(m.score("bbbbbbbbbb"), 10 * -Matcher::NO_MATCH_PENALTY);
+}
 } // namespace
 
 // NOLINTEND(readability-identifier-length)

@@ -34,6 +34,7 @@ I find_with_exclusions(I first, S last, const T &value, const std::set<I> &exclu
 Matcher::Matcher(std::string pattern)
     : m_pattern(std::move(pattern)) {}
 
+// FIX: Tune algorithm to match correctly
 int Matcher::score(const std::string &haystack) {
     int score = 0;
     std::set<std::string::const_iterator> matched_its;

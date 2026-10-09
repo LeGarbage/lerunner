@@ -1,4 +1,5 @@
 #include "window.hpp"
+#include "plugins/calculator.hpp"
 #include "plugins/desktop-entries.hpp"
 #include "plugins/system-actions.hpp"
 #include <gdk/gdkkeysyms.h>
@@ -45,6 +46,7 @@ MainWindow::MainWindow() {
     // TODO: Add automatic plugin loading
     m_plugins.push_back(std::make_unique<DesktopEntries>());
     m_plugins.push_back(std::make_unique<SystemActions>());
+    m_plugins.push_back(std::make_unique<plugins::Calculator>());
 
     auto key_controller = Gtk::EventControllerKey::create();
     key_controller->signal_key_pressed().connect(sigc::mem_fun(*this, &MainWindow::on_key_pressed),

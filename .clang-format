@@ -13,7 +13,7 @@ BinPackParameters: OnePerLine
 BreakBeforeBraces: Attach
 BreakTemplateDeclarations: Yes
 
-BreakBinaryOperations: OnePerLine
+BreakBinaryOperations: RespectPrecedence
 BreakBeforeBinaryOperators: NonAssignment
 
 ColumnLimit: 100

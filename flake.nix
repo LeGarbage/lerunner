@@ -22,6 +22,7 @@
             pkg-config,
             gtkmm4,
             gtk4-layer-shell,
+            libqalculate,
           }:
           stdenv.mkDerivation {
             pname = "lerunner";
@@ -37,6 +38,7 @@
             buildInputs = [
               gtkmm4
               gtk4-layer-shell
+              libqalculate
             ];
           }
         ) { };
