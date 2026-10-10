@@ -13,6 +13,7 @@ int main(int argc, char *argv[]) {
 #ifdef FLOATING
         gtk_layer_init_for_window(window.gobj());
         gtk_layer_set_layer(window.gobj(), GTK_LAYER_SHELL_LAYER_OVERLAY);
+        gtk_layer_set_namespace(window.gobj(), "lerunner");
         gtk_layer_set_keyboard_mode(window.gobj(), GTK_LAYER_SHELL_KEYBOARD_MODE_EXCLUSIVE);
 #endif // FLOATING
 
