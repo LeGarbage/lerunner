@@ -20,6 +20,7 @@
             stdenv,
             cmake,
             pkg-config,
+            gtest,
             gtkmm4,
             gtk4-layer-shell,
             libqalculate,
@@ -33,6 +34,7 @@
             nativeBuildInputs = [
               cmake
               pkg-config
+              gtest
             ];
 
             buildInputs = [
@@ -56,7 +58,6 @@
               llvmPackages_22.clang-tools
               vscode-langservers-extracted
               gdb
-              gtest
             ];
           };
       });
