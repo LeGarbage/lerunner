@@ -6,7 +6,7 @@
 #define FLOATING
 
 int main(int argc, char *argv[]) {
-    auto app = Gtk::Application::create("org.gtkmm.example");
+    auto app = Gtk::Application::create("lerunner");
     MainWindow window;
 
     app->signal_activate().connect([&window, &app] {
