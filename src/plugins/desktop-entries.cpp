@@ -59,7 +59,7 @@ void DesktopEntry::selected() {
 
     // m_desktop_entry->launch(nullptr);
     Glib::spawn_command_line_async(
-        std::format("uwsm-app -s app.slice -- {}", m_desktop_entry->get_commandline()));
+        std::format("uwsm-app -s app.slice -- {}", m_desktop_entry->get_id()));
 }
 
 std::vector<std::shared_ptr<SubEntry>> DesktopEntry::sub_entries() {
